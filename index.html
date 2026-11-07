@@ -1,851 +1,597 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>院内処方薬剤検索システム</title>
-  <!-- Google Fonts & Lucide Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    :root {
-      --main-green: #48bb78;
-      --main-green-light: #e6fffa;
-      --main-green-dark: #2f855a;
-      --sub-blue: #4299e1;
-      --sub-blue-light: #ebf8ff;
-      --bg-gradient: linear-gradient(135deg, #f0fff4 0%, #ebf8ff 100%);
-      --text-color: #2d3748;
-      --text-muted: #718096;
-      --danger-color: #ed8936;
-      --danger-bg: #fffaf0;
-      --danger-border: #fbd38d;
-      --card-bg: #ffffff;
-      --border-color: #e2e8f0;
-      --radius: 12px;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>横浜こころとねむりのクリニック 院内薬剤検索</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Noto Sans JP', sans-serif;
-    }
+:root {
+  --green: #72ad96;
+  --green-dark: #4f9279;
+  --green-light: #eaf5ef;
+  --blue: #8bbbd0;
+  --blue-light: #edf5f9;
+  --ink: #344b48;
+  --muted: #82938e;
+  --line: #e3ede8;
+  --white: #fff;
+  --danger: #e53e3e;
+  --danger-light: #fff5f5;
+  --danger-border: #fed7d7;
+  --warning: #dd6b20;
+  --warning-light: #fffaf0;
+  --warning-border: #fbd38d;
+}
 
-    body {
-      background: var(--bg-gradient);
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
+* { box-sizing: border-box; }
 
-    .container {
-      width: 100%;
-      max-width: 720px;
-      margin: 0 auto;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 28px 18px;
+  background:
+    radial-gradient(circle at 10% 5%, #e4f2ec 0, transparent 30%),
+    radial-gradient(circle at 95% 90%, #e6f0f6 0, transparent 30%),
+    #f7faf9;
+  color: var(--ink);
+  font-family: "Noto Sans JP", sans-serif;
+}
 
-    /* Header Styling */
-    header {
-      text-align: center;
-      margin-top: 20px;
-      margin-bottom: 30px;
-    }
-    .header-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background-color: var(--main-green-light);
-      color: var(--main-green-dark);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-bottom: 12px;
-    }
-    h1 {
-      font-size: 1.8rem;
-      color: var(--text-color);
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
+button, input { font: inherit; }
 
-    /* Main Card (Search Area) */
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 30px;
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(10px);
-      margin-bottom: 30px;
-    }
+.container {
+  width: min(100%, 900px);
+  margin: 0 auto;
+}
 
-    .search-wrapper {
-      position: relative;
-    }
+/* ヘッダー */
+.header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 190px;
+  padding: 34px 42px;
+  overflow: hidden;
+  border: 1px solid #dcece5;
+  border-radius: 28px;
+  background: linear-gradient(115deg, #e8f5ee, #eaf3f8);
+}
 
-    .search-input-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
+.header-copy { position: relative; z-index: 1; }
 
-    .search-icon {
-      position: absolute;
-      left: 16px;
-      color: var(--sub-blue);
-      pointer-events: none;
-    }
+.header-label {
+  margin: 0 0 8px;
+  color: var(--green-dark);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
 
-    .clear-btn {
-      position: absolute;
-      right: 14px;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      display: none;
-      padding: 4px;
-      border-radius: 50%;
-    }
-    .clear-btn:hover { background-color: #edf2f7; }
+.header h1 {
+  margin: 0;
+  font-size: clamp(22px, 3.8vw, 32px);
+  font-weight: 700;
+  letter-spacing: .04em;
+}
 
-    input[type="text"] {
-      width: 100%;
-      padding: 16px 44px 16px 48px;
-      font-size: 1.1rem;
-      border: 2px solid var(--border-color);
-      border-radius: 10px;
-      outline: none;
-      transition: all 0.2s ease;
-      background-color: #f7fafc;
-    }
+.header p.description {
+  margin: 12px 0 0;
+  color: #718781;
+  font-size: 13px;
+  line-height: 1.8;
+}
 
-    input[type="text"]:focus {
-      border-color: var(--main-green);
-      background-color: #fff;
-      box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
-    }
+/* 医療イラスト */
+.illustration {
+  position: relative;
+  flex: 0 0 230px;
+  height: 145px;
+}
 
-    /* Auto-complete Dropdown */
-    .autocomplete-list {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      right: 0;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      max-height: 280px;
-      overflow-y: auto;
-      z-index: 100;
-      display: none;
-    }
+.medical-circle {
+  position: absolute;
+  top: 4px;
+  right: 24px;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: #d5eae0;
+}
 
-    .autocomplete-item {
-      padding: 12px 18px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f7fafc;
-      transition: background-color 0.15s;
-    }
-    .autocomplete-item:last-child { border-bottom: none; }
-    .autocomplete-item:hover, .autocomplete-item.active {
-      background-color: var(--main-green-light);
-    }
+.medical-cross {
+  position: absolute;
+  top: 36px;
+  right: 62px;
+  width: 58px;
+  height: 58px;
+  color: white;
+  font-size: 62px;
+  font-weight: 400;
+  line-height: 52px;
+  text-align: center;
+  z-index: 2;
+}
 
-    .item-name {
-      font-weight: 500;
-      color: var(--text-color);
-    }
-    .item-brand {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      background: #edf2f7;
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
+.pill {
+  position: absolute;
+  z-index: 3;
+  width: 72px;
+  height: 29px;
+  border: 4px solid white;
+  border-radius: 30px;
+  transform: rotate(-35deg);
+  background: linear-gradient(90deg, #91cbb0 50%, #fff 50%);
+  box-shadow: 0 5px 12px #658c7c20;
+}
 
-    /* Result Box */
-    .result-container {
-      margin-top: 24px;
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
+.pill-one { right: 120px; top: 92px; }
+.pill-two {
+  right: 4px;
+  top: 105px;
+  transform: rotate(28deg) scale(.8);
+  background: linear-gradient(90deg, #9bc9dc 50%, #fff 50%);
+}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+.small-circle {
+  position: absolute;
+  right: 190px;
+  top: 22px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #a6cfc0;
+}
 
-    .result-box {
-      border-radius: 10px;
-      padding: 20px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
+/* 検索 */
+.search-card {
+  position: relative;
+  margin-top: 24px;
+  padding: 30px 34px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: white;
+  box-shadow: 0 8px 30px #527e6a0b;
+}
 
-    .result-box.allowed {
-      background-color: var(--main-green-light);
-      border: 1px solid #b2f5ea;
-      color: var(--main-green-dark);
-    }
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-size: 15px;
+  font-weight: 700;
+}
 
-    .result-box.denied {
-      background-color: var(--danger-bg);
-      border: 1px solid var(--danger-border);
-      color: #c05621;
-    }
+.heading-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 16px;
+}
 
-    .result-title {
-      font-size: 1.3rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+.search-box { position: relative; }
 
-    .result-drug-name {
-      font-size: 0.95rem;
-      margin-top: 4px;
-      font-weight: 500;
-      opacity: 0.9;
-    }
+.search-box input {
+  width: 100%;
+  height: 60px;
+  padding: 0 52px 0 20px;
+  border: 1.5px solid #d8e8e0;
+  border-radius: 14px;
+  outline: none;
+  background: #fbfdfc;
+  color: var(--ink);
+  font-size: 15px;
+  transition: .2s;
+}
 
-    .result-notice {
-      margin-top: 8px;
-      padding: 10px 14px;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #9c4221;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+.search-box input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px #72ad961c;
+  background: white;
+}
 
-    /* Admin Drawer Footer */
-    footer {
-      margin-top: auto;
-      padding-top: 20px;
-      text-align: center;
-    }
+.search-box input::placeholder { color: #a9b8b2; }
 
-    .admin-toggle-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      transition: all 0.2s;
-    }
-    .admin-toggle-btn:hover {
-      background-color: rgba(0, 0, 0, 0.04);
-      color: var(--text-color);
-    }
+.search-icon {
+  position: absolute;
+  top: 50%;
+  right: 19px;
+  transform: translateY(-50%);
+  color: #86ad9b;
+  font-size: 23px;
+  pointer-events: none;
+}
 
-    /* Admin Panel */
-    .admin-panel {
-      display: none;
-      margin-top: 15px;
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 24px;
-      text-align: left;
-      border: 1px solid var(--border-color);
-    }
-    .admin-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .admin-title {
-      font-weight: 700;
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .admin-form {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .admin-input {
-      padding: 10px;
-      font-size: 0.9rem;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-    }
-    .btn {
-      padding: 10px 16px;
-      border-radius: 6px;
-      border: none;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.9rem;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.9; }
-    .btn-primary { background-color: var(--main-green); color: white; }
-    .btn-secondary { background-color: #edf2f7; color: var(--text-color); }
-    .btn-danger { background-color: #e53e3e; color: white; padding: 6px 10px; font-size: 0.8rem; }
+.hint {
+  margin: 10px 0 0;
+  color: #98a7a1;
+  font-size: 11px;
+}
 
-    .drug-list-container {
-      max-height: 220px;
-      overflow-y: auto;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-    }
-    .drug-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-    .drug-table th, .drug-table td {
-      padding: 10px 12px;
-      text-align: left;
-      border-bottom: 1px solid #edf2f7;
-    }
-    .drug-table th {
-      background-color: #f7fafc;
-      color: var(--text-muted);
-      position: sticky;
-      top: 0;
-    }
+.suggestions {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 7px);
+  left: 0;
+  width: 100%;
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: white;
+  box-shadow: 0 12px 30px #385c4d18;
+  list-style: none;
+}
 
-    .admin-footer-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 15px;
-    }
+.suggestions li {
+  padding: 12px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .notice-box {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 10px;
-      line-height: 1.4;
-    }
+.suggestions li:hover,
+.suggestions li.active { background: var(--green-light); }
 
-    /* Responsive */
-    @media (max-width: 600px) {
-      .admin-form {
-        grid-template-columns: 1fr;
-      }
-      .card {
-        padding: 20px 16px;
-      }
-      h1 { font-size: 1.4rem; }
-    }
-  </style>
+.suggestions small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+[hidden] { display: none !important; }
+
+/* 結果表示 */
+.result-card {
+  margin-top: 20px;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: white;
+  text-align: center;
+  box-shadow: 0 8px 30px #527e6a08;
+}
+
+.result-card.available {
+  align-items: flex-start;
+  border-color: #cce7d8;
+  background: linear-gradient(120deg, #f1faf5, #fff);
+  text-align: left;
+}
+
+.result-card.unavailable {
+  align-items: flex-start;
+  border-color: #f0dfc9;
+  background: linear-gradient(120deg, #fff8ef, #fff);
+  text-align: left;
+}
+
+.result-card.restricted {
+  align-items: flex-start;
+  border-color: var(--danger-border);
+  background: linear-gradient(120deg, var(--danger-light), #fff);
+  text-align: left;
+}
+
+.result-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--green-light);
+  color: var(--green-dark);
+  font-size: 23px;
+}
+
+.result-card h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.result-card > p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.status {
+  display: inline-block;
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.available .status {
+  background: #dff1e6;
+  color: #397c5b;
+}
+
+.unavailable .status {
+  background: #fff0dc;
+  color: #a16b2e;
+}
+
+.restricted .status {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.drug-name {
+  margin: 16px 0 5px;
+  font-size: 23px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.drug-brands {
+  color: #788c83;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.warning {
+  margin-top: 16px;
+  padding: 13px 16px;
+  border-left: 3px solid #e0ad69;
+  border-radius: 6px;
+  background: #fff4e6;
+  color: #805e35;
+  font-size: 12px;
+  line-height: 1.8;
+  width: 100%;
+}
+
+.warning.danger-warning {
+  border-left-color: #e53e3e;
+  background: #fff5f5;
+  color: #9b2c2c;
+}
+
+.disclaimer {
+  margin: 24px 5px 18px;
+  color: #a0aea8;
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+@media(max-width: 600px) {
+  body { padding: 12px; }
+  .header { min-height: 160px; padding: 25px 22px; border-radius: 20px; }
+  .illustration { flex-basis: 105px; transform: scale(.75); transform-origin: right center; margin-left: -35px; }
+  .header p.description { max-width: 230px; font-size: 11px; }
+  .search-card { padding: 23px 18px; }
+  .result-card { padding: 23px 19px; }
+}
+@media(max-width: 360px) {
+  .illustration { display: none; }
+}
+</style>
 </head>
+
 <body>
+<main class="container">
 
-  <div class="container">
-    <header>
-      <div class="header-badge">
-        <i data-lucide="shield-check" size="16"></i> 院内処方判定システム
-      </div>
-      <h1><i data-lucide="pill" style="color: var(--main-green);"></i> 薬剤検索・可否確認</h1>
-    </header>
-
-    <main class="card">
-      <div class="search-wrapper">
-        <div class="search-input-container">
-          <i data-lucide="search" class="search-icon" size="20"></i>
-          <input type="text" id="searchInput" placeholder="一般名・商品名を入力（例: アセナピン、コンサータ）" autocomplete="off">
-          <button id="clearBtn" class="clear-btn" aria-label="消去">
-            <i data-lucide="x" size="16"></i>
-          </button>
-        </div>
-        <div id="autocompleteList" class="autocomplete-list"></div>
-      </div>
-
-      <div id="resultContainer" class="result-container"></div>
-    </main>
-
-    <footer>
-      <button id="adminToggleBtn" class="admin-toggle-btn">
-        <i data-lucide="settings" size="14"></i> 薬剤リスト管理（院内担当者向け）
-      </button>
-
-      <div id="adminPanel" class="admin-panel">
-        <div class="admin-header">
-          <div class="admin-title">
-            <i data-lucide="database" size="18"></i> 薬剤マスターデータの追加・管理
-          </div>
-          <button id="resetDefaultBtn" class="btn btn-secondary">
-            <i data-lucide="rotate-ccw" size="14"></i> 初期化
-          </button>
-        </div>
-
-        <form id="addDrugForm" class="admin-form">
-          <input type="text" id="addGenericName" class="admin-input" placeholder="一般名 (例: アセナピン)" required>
-          <input type="text" id="addBrandName" class="admin-input" placeholder="商品名 (例: シクレスト)">
-          <button type="submit" class="btn btn-primary">
-            <i data-lucide="plus" size="16"></i> 追加
-          </button>
-        </form>
-
-        <div class="drug-list-container">
-          <table class="drug-table">
-            <thead>
-              <tr>
-                <th>一般名</th>
-                <th>商品名</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody id="adminDrugTableBody"></tbody>
-          </table>
-        </div>
-
-        <div class="admin-footer-actions">
-          <div class="notice-box">
-            ※ ブラウザのローカルストレージ（Storage）に保持されています。<br>
-            ※ 全職員間でのリアルタイム同期にはWebサーバー/データベースとの連携が必要です。
-          </div>
-        </div>
-      </div>
-    </footer>
+<header class="header">
+  <div class="header-copy">
+    <p class="header-label">YOKOHAMA KOKORO TO NEMURI CLINIC</p>
+    <h1>院内薬剤検索</h1>
+    <p class="description">
+      横浜こころとねむりのクリニック<br>
+      院内処方可否確認システム
+    </p>
   </div>
+  <div class="illustration" aria-hidden="true">
+    <div class="medical-circle"></div>
+    <div class="medical-cross">＋</div>
+    <div class="pill pill-one"></div>
+    <div class="pill pill-two"></div>
+    <div class="small-circle"></div>
+  </div>
+</header>
 
-  <script>
-    // ==========================================
-    // 1. 初期データ定義 (プリセット105薬)
-    // ==========================================
-    const DEFAULT_ALLOWED_DRUGS = [
-      { generic: "アカンプロサート", brand: "レグテクト" },
-      { generic: "アセナピン", brand: "シクレスト" },
-      { generic: "アトモキセチン", brand: "ストラテラ" },
-      { generic: "アミトリプチリン", brand: "トリプタノール" },
-      { generic: "アモキサピン", brand: "アモキサン" },
-      { generic: "アリピプラゾール", brand: "エビリファイ" },
-      { generic: "アルプラゾラム", brand: "ソラナックス / コンスタン" },
-      { generic: "イミプラミン", brand: "トフラニール" },
-      { generic: "エスシタロプラム", brand: "レクサプロ" },
-      { generic: "エスゾピクロン", brand: "ルネスタ" },
-      { generic: "エスタゾラム", brand: "ユーロジン" },
-      { generic: "エチゾラム", brand: "デパス" },
-      { generic: "オキサゾラム", brand: "セレナール" },
-      { generic: "オキシペルチン", brand: "オキシペルチン" },
-      { generic: "オランザピン", brand: "ジプレキサ" },
-      { generic: "ガランタミン", brand: "レミニール" },
-      { generic: "カルバマゼピン", brand: "テグレトール" },
-      { generic: "クアゼパム", brand: "ドラール" },
-      { generic: "クエチアピン", brand: "セロクエル / ピプレッソ" },
-      { generic: "クロカプラミン", brand: "クレミン / クロフェクトン" },
-      { generic: "クロキサゾラム", brand: "セパゾン" },
-      { generic: "クロチアゼパム", brand: "リーゼ" },
-      { generic: "クロミプラミン", brand: "アナフラニール" },
-      { generic: "クロルジアゼポキシド", brand: "コントール" },
-      { generic: "クロルプロマジン", brand: "ウインタミン / コントミン" },
-      { generic: "クロザピン", brand: "クロザリル" },
-      { generic: "グアンファシン", brand: "インチュニブ" },
-      { generic: "シアナミド", brand: "シアナマイド" },
-      { generic: "ジアゼパム", brand: "セルシン / ホリゾン" },
-      { generic: "ジスルフィラム", brand: "ノックビン" },
-      { generic: "スボレキサント", brand: "ベルソムラ" },
-      { generic: "スピペロン", brand: "スピロピタン" },
-      { generic: "スルトプリド", brand: "バルネチール" },
-      { generic: "スルピリド", brand: "ドグマチール" },
-      { generic: "セチプチリン", brand: "テシプール" },
-      { generic: "セルトラリン", brand: "ジェイゾロフト" },
-      { generic: "ゾテピン", brand: "ロドピン" },
-      { generic: "ゾピクロン", brand: "アモバン" },
-      { generic: "ゾルピデム", brand: "マイスリー" },
-      { generic: "タンドスピロン", brand: "セディール" },
-      { generic: "炭酸リチウム", brand: "リーマス" },
-      { generic: "チアプリド", brand: "グラマリール" },
-      { generic: "チミペロン", brand: "トロペロン" },
-      { generic: "デュロキセチン", brand: "サインバルタ" },
-      { generic: "トフィソパム", brand: "グランダキシン" },
-      { generic: "トリアゾラム", brand: "ハルシオン" },
-      { generic: "トリヘキシフェニジル", brand: "アーテン" },
-      { generic: "トリミプラミン", brand: "スルモンチール" },
-      { generic: "トラゾドン", brand: "レスリン / デジレル" },
-      { generic: "ドネペジル", brand: "アリセプト" },
-      { generic: "ドネペジル経皮吸収型製剤", brand: "アリドネパッチ" },
-      { generic: "ナルメフェン", brand: "セリンクロ" },
-      { generic: "ニトラゼパム", brand: "ベンザリン / ネルボン" },
-      { generic: "ネモナプリド", brand: "エミレース" },
-      { generic: "ノルトリプチリン", brand: "ノリトレン" },
-      { generic: "ハロペリドール", brand: "セレネーズ" },
-      { generic: "バルベナジン", brand: "ジスバル" },
-      { generic: "バルプロ酸ナトリウム", brand: "デパケン / セレニカ" },
-      { generic: "パロキセチン", brand: "パキシル" },
-      { generic: "パリペリドン", brand: "インヴェガ / ゼプリオン" },
-      { generic: "ヒドロキシジン", brand: "アタラックス-P" },
-      { generic: "ビペリデン", brand: "アキネトン / ジスパル" },
-      { generic: "ピパンペロン", brand: "プロピタン" },
-      { generic: "ピモジド", brand: "オーラップ" },
-      { generic: "フェノバルビタール", brand: "フェノバール" },
-      { generic: "フルタゾラム", brand: "メイラックス" },
-      { generic: "フルニトラゼパム", brand: "サイレース" },
-      { generic: "フルボキサミン", brand: "デプロメール / ルボックス" },
-      { generic: "フルラゼパム", brand: "ダルメート" },
-      { generic: "ブレクスピプラゾール", brand: "レキサルティ" },
-      { generic: "ブロチゾラム", brand: "レンドルミン" },
-      { generic: "ブロマゼパム", brand: "レキソタン / セニラン" },
-      { generic: "ブロモクリプチン", brand: "パーロデル" },
-      { generic: "プロクロルペラジン", brand: "ノバミン" },
-      { generic: "ブロナンセリン", brand: "ロナセン" },
-      { generic: "プロペリシアジン", brand: "ニューレプチル" },
-      { generic: "プロメタジン", brand: "ピレチア / ヒベルナ" },
-      { generic: "プラミペキソール", brand: "ビ・シフロール" },
-      { generic: "ペルフェナジン", brand: "ピーゼットシー" },
-      { generic: "ペロスピロン", brand: "ルーラン" },
-      { generic: "ボルチオキセチン", brand: "トリンテリックス" },
-      { generic: "マプロチリン", brand: "ルジオミール" },
-      { generic: "ミアンセリン", brand: "テトラミド" },
-      { generic: "ミルナシプラン", brand: "トレドミン" },
-      { generic: "ミルタザピン", brand: "リフレックス / レメロン" },
-      { generic: "メキサゾラム", brand: "メレックス" },
-      { generic: "メダゼパム", brand: "レスミット" },
-      { generic: "メチルフェニデート徐放錠", brand: "コンサータ" },
-      { generic: "メマンチン", brand: "メマリー" },
-      { generic: "モサプラミン", brand: "クレミン類縁" },
-      { generic: "抑肝散", brand: "ツムラ54等" },
-      { generic: "リバスチグミン", brand: "イクセロンパッチ / リバスタッチパッチ" },
-      { generic: "リスデキサンフェタミン", brand: "ビバンセ" },
-      { generic: "リスペリドン", brand: "リスパダール" },
-      { generic: "リルマザホン", brand: "リスミー" },
-      { generic: "ルラシドン", brand: "ラツーダ" },
-      { generic: "レボメプロマジン", brand: "ヒルナミン / レボトミン" },
-      { generic: "レンボレキサント", brand: "デエビゴ" },
-      { generic: "ロラゼパム", brand: "ワイパックス" },
-      { generic: "ロフラゼプ酸エチル", brand: "メイラックス" },
-      { generic: "ロルメタゼパム", brand: "エバミール / ロラメット" },
-      { generic: "ラメルテオン", brand: "ロゼレム" },
-      { generic: "ラモトリギン", brand: "ラミクタール" },
-      { generic: "ベンラファキシン", brand: "イフェクサー" }
-    ];
+<section class="search-card">
+  <div class="section-heading">
+    <span class="heading-icon">⌕</span>
+    薬剤名を検索
+  </div>
+  <div class="search-box">
+    <input id="search" type="search"
+      placeholder="一般名・商品名を入力してください（例: アセナピン、コンサータ）"
+      autocomplete="off">
+    <span class="search-icon">⌕</span>
+    <ul id="suggestions" class="suggestions" hidden></ul>
+  </div>
+  <p class="hint">一般名・商品名のどちらからでも検索・予測変換できます。</p>
+</section>
 
-    // 特別ルール: 予測変換に出すが処方不可判定とする参考薬剤
-    const REFERENCE_DENIED_DRUGS = [
-      { generic: "ロキソプロフェン", brand: "ロキソニン" },
-      { generic: "エロビキシバット", brand: "イリボー" }
-    ];
+<section id="result" class="result-card" aria-live="polite">
+  <div class="result-icon">＋</div>
+  <h2>薬剤名を入力してください</h2>
+  <p>検索結果に当院での処方可否が表示されます。</p>
+</section>
 
-    // ==========================================
-    // 2. アプリケーションの状態管理 & 初期化
-    // ==========================================
-    let allowedDrugs = [];
+<p class="disclaimer">
+  本ページは院内の登録リストを検索する補助ツールです。<br>
+  処方の最終判断は院内ルールおよび診療上の判断に従ってください。
+</p>
 
-    function initData() {
-      const saved = localStorage.getItem('hospital_allowed_drugs');
-      if (saved) {
-        try {
-          allowedDrugs = JSON.parse(saved);
-        } catch(e) {
-          allowedDrugs = [...DEFAULT_ALLOWED_DRUGS];
-        }
-      } else {
-        allowedDrugs = [...DEFAULT_ALLOWED_DRUGS];
-      }
-    }
+</main>
 
-    function saveData() {
-      localStorage.setItem('hospital_allowed_drugs', JSON.stringify(allowedDrugs));
-      renderAdminTable();
-    }
+<script>
+// 1. 当院処方可能薬剤マスター（105成分）
+const ALLOWED_DRUGS = [
+  ["アカンプロサート","レグテクト"],
+  ["アセナピン","シクレスト"],
+  ["アトモキセチン","ストラテラ"],
+  ["アミトリプチリン","トリプタノール"],
+  ["アモキサピン","アモキサン"],
+  ["アリピプラゾール","エビリファイ"],
+  ["アルプラゾラム","ソラナックス／コンスタン"],
+  ["イミプラミン","トフラニール"],
+  ["エスシタロプラム","レクサプロ"],
+  ["エスゾピクロン","ルネスタ"],
+  ["エスタゾラム","ユーロジン"],
+  ["エチゾラム","デパス"],
+  ["オキサゾラム","セレナール"],
+  ["オキシペルチン",""],
+  ["オランザピン","ジプレキサ"],
+  ["ガランタミン","レミニール"],
+  ["カルバマゼピン","テグレトール"],
+  ["クアゼパム","ドラール"],
+  ["クエチアピン","セロクエル／ピプレッソ"],
+  ["クロカプラミン","クロフェクトン"],
+  ["クロキサゾラム","セパゾン"],
+  ["クロチアゼパム","リーゼ"],
+  ["クロミプラミン","アナフラニール"],
+  ["クロルジアゼポキシド","コントール"],
+  ["クロルプロマジン","ウインタミン／コントミン"],
+  ["クロザピン","クロザリル"],
+  ["グアンファシン","インチュニブ"],
+  ["シアナミド","シアナマイド"],
+  ["ジアゼパム","セルシン／ホリゾン"],
+  ["ジスルフィラム","ノックビン"],
+  ["スボレキサント","ベルソムラ"],
+  ["スピペロン","スピロピタン"],
+  ["スルトプリド","バルネチール"],
+  ["スルピリド","ドグマチール"],
+  ["セチプチリン","テシプール"],
+  ["セルトラリン","ジェイゾロフト"],
+  ["ゾテピン","ロドピン"],
+  ["ゾピクロン","アモバン"],
+  ["ゾルピデム","マイスリー"],
+  ["タンドスピロン","セディール"],
+  ["炭酸リチウム","リーマス"],
+  ["チアプリド","グラマリール"],
+  ["チミペロン","トロペロン"],
+  ["デュロキセチン","サインバルタ"],
+  ["トフィソパム","グランダキシン"],
+  ["トリアゾラム","ハルシオン"],
+  ["トリヘキシフェニジル","アーテン"],
+  ["トリミプラミン","スルモンチール"],
+  ["トラゾドン","レスリン／デジレル"],
+  ["ドネペジル","アリセプト"],
+  ["ドネペジル経皮吸収型製剤","アリドネパッチ"],
+  ["ナルメフェン","セリンクロ"],
+  ["ニトラゼパム","ベンザリン／ネルボン"],
+  ["ネモナプリド","エミレース"],
+  ["ノルトリプチリン","ノリトレン"],
+  ["ハロペリドール","セレネース"],
+  ["バルベナジン","ジスバル"],
+  ["バルプロ酸ナトリウム","デパケン／セレニカ"],
+  ["パロキセチン","パキシル"],
+  ["パリペリドン","インヴェガ／ゼプリオン"],
+  ["ヒドロキシジン","アタラックス-P"],
+  ["ビペリデン","アキネトン／ジスパル"],
+  ["ピパンペロン","プロピタン"],
+  ["ピモジド","オーラップ"],
+  ["フェノバルビタール","フェノバール"],
+  ["フルタゾラム","コレミナール"],
+  ["フルニトラゼパム","サイレース"],
+  ["フルボキサミン","デプロメール／ルボックス"],
+  ["フルラゼパム","ダルメート"],
+  ["ブレクスピプラゾール","レキサルティ"],
+  ["ブロチゾラム","レンドルミン"],
+  ["ブロマゼパム","レキソタン／セニラン"],
+  ["ブロモクリプチン","パーロデル"],
+  ["プロクロルペラジン","ノバミン"],
+  ["ブロナンセリン","ロナセン"],
+  ["プロペリシアジン","ニューレプチル"],
+  ["プロメタジン","ピレチア／ヒベルナ"],
+  ["プラミペキソール","ビ・シフロール"],
+  ["ペルフェナジン","ピーゼットシー"],
+  ["ペロスピロン","ルーラン"],
+  ["ボルチオキセチン","トリンテリックス"],
+  ["マプロチリン","ルジオミール"],
+  ["ミアンセリン","テトラミド"],
+  ["ミルナシプラン","トレドミン"],
+  ["ミルタザピン","リフレックス／レメロン"],
+  ["メキサゾラム","メレックス"],
+  ["メダゼパム","レスミット"],
+  ["メチルフェニデート徐放錠","コンサータ"],
+  ["メマンチン","メマリー"],
+  ["モサプラミン","クレミン"],
+  ["抑肝散","ヨクカンサン"],
+  ["リバスチグミン","イクセロンパッチ／リバスタッチパッチ"],
+  ["リスデキサンフェタミン","ビバンセ"],
+  ["リスペリドン","リスパダール"],
+  ["リルマザホン","リスミー"],
+  ["ルラシドン","ラツーダ"],
+  ["レボメプロマジン","ヒルナミン／レボトミン"],
+  ["レンボレキサント","デエビゴ"],
+  ["ロラゼパム","ワイパックス"],
+  ["ロフラゼプ酸エチル","メイラックス"],
+  ["ロルメタゼパム","エバミール／ロラメット"],
+  ["ラメルテオン","ロゼレム"],
+  ["ラモトリギン","ラミクタール"],
+  ["ベンラファキシン","イフェクサー"]
+];
 
-    initData();
+// 2. 横浜こころとねむりのクリニック 固有処方制限（3剤）
+const RESTRICTED_DRUGS = [
+  { name: "コンサータ", generic: "メチルフェニデート徐放錠" },
+  { name: "ビバンセ", generic: "リスデキサンフェタミン" },
+  { name: "モディオダール", generic: "モダフィニル" },
+  { name: "メチルフェニデート徐放錠", generic: "メチルフェニデート徐放錠" },
+  { name: "リスデキサンフェタミン", generic: "リスデキサンフェタミン" },
+  { name: "モダフィニル", generic: "モダフィニル" }
+];
 
-    // DOM Elements
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearBtn');
-    const autocompleteList = document.getElementById('autocompleteList');
-    const resultContainer = document.getElementById('resultContainer');
-    const adminToggleBtn = document.getElementById('adminToggleBtn');
-    const adminPanel = document.getElementById('adminPanel');
-    const addDrugForm = document.getElementById('addDrugForm');
-    const adminDrugTableBody = document.getElementById('adminDrugTableBody');
-    const resetDefaultBtn = document.getElementById('resetDefaultBtn');
-
-    // ==========================================
-    // 3. 表記揺れ吸収用ヘルパー関数
-    // ==========================================
-    function normalizeText(text) {
-      if (!text) return '';
-      return text
-        .toLowerCase()
-        // 全角英数字を半角に変換
-        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
-          return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
-        })
-        // ひらがなをカタカナに変換
-        .replace(/[ぁ-ん]/g, function(s) {
-          return String.fromCharCode(s.charCodeAt(0) + 0x60);
-        })
-        // 空白除去
-        .replace(/\s+/g, '');
-    }
-
-    // XSS防止エスケープ処理
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    // ==========================================
-    // 4. 検索 & 予測変換処理
-    // ==========================================
-    function handleSearchInput() {
-      const query = searchInput.value.trim();
-      const normQuery = normalizeText(query);
-
-      clearBtn.style.display = query ? 'block' : 'none';
-
-      if (!normQuery) {
-        autocompleteList.style.display = 'none';
-        resultContainer.style.display = 'none';
-        return;
-      }
-
-      // 予測候補の検索（処方可能リスト ＋ 不可参考リスト両方から探索）
-      const candidates = [];
-
-      allowedDrugs.forEach(d => {
-        const normGen = normalizeText(d.generic);
-        const normBrand = normalizeText(d.brand);
-        if (normGen.includes(normQuery) || normBrand.includes(normQuery)) {
-          candidates.push({ ...d, type: 'allowed' });
-        }
-      });
-
-      REFERENCE_DENIED_DRUGS.forEach(d => {
-        const normGen = normalizeText(d.generic);
-        const normBrand = normalizeText(d.brand);
-        if (normGen.includes(normQuery) || normBrand.includes(normQuery)) {
-          // 重複がなければ追加
-          if (!candidates.some(c => c.generic === d.generic)) {
-            candidates.push({ ...d, type: 'denied' });
-          }
-        }
-      });
-
-      renderAutocomplete(candidates);
-    }
-
-    function renderAutocomplete(candidates) {
-      if (candidates.length === 0) {
-        autocompleteList.style.display = 'none';
-        return;
-      }
-
-      autocompleteList.innerHTML = candidates.map((item, index) => `
-        <div class="autocomplete-item" data-index="${index}">
-          <span class="item-name">${escapeHtml(item.generic)}</span>
-          <span class="item-brand">${escapeHtml(item.brand)}</span>
-        </div>
-      `).join('');
-
-      autocompleteList.style.display = 'block';
-
-      // クリックイベント設定
-      document.querySelectorAll('.autocomplete-item').forEach((el, idx) => {
-        el.addEventListener('click', () => {
-          const selected = candidates[idx];
-          searchInput.value = selected.brand ? `${selected.generic} (${selected.brand})` : selected.generic;
-          autocompleteList.style.display = 'none';
-          evaluateDrug(selected.generic, selected.brand, selected.type);
-        });
-      });
-    }
-
-    // 判定・結果表示処理
-    function evaluateDrug(genericName, brandName, forceType = null) {
-      let isAllowed = false;
-      let displayDrug = genericName;
-
-      if (brandName) {
-        displayDrug += ` （${brandName}）`;
-      }
-
-      if (forceType) {
-        isAllowed = (forceType === 'allowed');
-      } else {
-        const queryNorm = normalizeText(genericName);
-        isAllowed = allowedDrugs.some(d => 
-          normalizeText(d.generic) === queryNorm || 
-          normalizeText(d.brand).includes(queryNorm)
-        );
-      }
-
-      renderResult(isAllowed, displayDrug);
-    }
-
-    function renderResult(isAllowed, drugName) {
-      resultContainer.style.display = 'block';
-      if (isAllowed) {
-        resultContainer.innerHTML = `
-          <div class="result-box allowed">
-            <div class="result-title">
-              <i data-lucide="check-circle-2" size="28"></i> 当院処方可能です
-            </div>
-            <div class="result-drug-name">対象：${escapeHtml(drugName)}</div>
-          </div>
-        `;
-      } else {
-        resultContainer.innerHTML = `
-          <div class="result-box denied">
-            <div class="result-title">
-              <i data-lucide="alert-triangle" size="28"></i> 当院処方が原則不可な薬です
-            </div>
-            <div class="result-drug-name">対象：${escapeHtml(drugName)}</div>
-            <div class="result-notice">
-              <i data-lucide="info" size="16"></i> 処方が必要と判断した場合は、カルテ内にその理由を記載してください
-            </div>
-          </div>
-        `;
-      }
-      lucide.createIcons();
-    }
-
-    // Enterキー入力での直接判定
-    searchInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        const query = searchInput.value.trim();
-        if (!query) return;
-
-        autocompleteList.style.display = 'none';
-
-        // 登録されているかチェック
-        const normQuery = normalizeText(query);
-        const matchAllowed = allowedDrugs.find(d => 
-          normalizeText(d.generic) === normQuery || 
-          normalizeText(d.brand).includes(normQuery)
-        );
-
-        if (matchAllowed) {
-          evaluateDrug(matchAllowed.generic, matchAllowed.brand, 'allowed');
-        } else {
-          const matchDenied = REFERENCE_DENIED_DRUGS.find(d =>
-            normalizeText(d.generic) === normQuery || 
-            normalizeText(d.brand).includes(normQuery)
-          );
-          if (matchDenied) {
-            evaluateDrug(matchDenied.generic, matchDenied.brand, 'denied');
-          } else {
-            evaluateDrug(query, '', 'denied');
-          }
-        }
-      }
-    });
-
-    searchInput.addEventListener('input', handleSearchInput);
-
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      clearBtn.style.display = 'none';
-      autocompleteList.style.display = 'none';
-      resultContainer.style.display = 'none';
-      searchInput.focus();
-    });
-
-    // 画面外クリックでドロップダウン閉じる
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.search-wrapper')) {
-        autocompleteList.style.display = 'none';
-      }
-    });
-
-    // ==========================================
-    // 5. 管理機能（追加・削除・初期化）
-    // ==========================================
-    adminToggleBtn.addEventListener('click', () => {
-      const isVisible = adminPanel.style.display === 'block';
-      adminPanel.style.display = isVisible ? 'none' : 'block';
-      if (!isVisible) {
-        renderAdminTable();
-      }
-    });
-
-    function renderAdminTable() {
-      adminDrugTableBody.innerHTML = allowedDrugs.map((d, index) => `
-        <tr>
-          <td>${escapeHtml(d.generic)}</td>
-          <td>${escapeHtml(d.brand || '-')}</td>
-          <td>
-            <button class="btn btn-danger" onclick="deleteDrug(${index})">
-              <i data-lucide="trash-2" size="12"></i> 削除
-            </button>
-          </td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
-    }
-
-    addDrugForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const generic = document.getElementById('addGenericName').value.trim();
-      const brand = document.getElementById('addBrandName').value.trim();
-
-      if (generic) {
-        allowedDrugs.unshift({ generic, brand });
-        saveData();
-        document.getElementById('addGenericName').value = '';
-        document.getElementById('addBrandName').value = '';
-      }
-    });
-
-    window.deleteDrug = function(index) {
-      if (confirm(`「${allowedDrugs[index].generic}」を処方可能リストから削除しますか？`)) {
-        allowedDrugs.splice(index, 1);
-        saveData();
-      }
-    };
-
-    resetDefaultBtn.addEventListener('click', () => {
-      if (confirm('薬剤マスターリストを初期状態（105薬）に戻しますか？追加した薬剤は消去されます。')) {
-        allowedDrugs = [...DEFAULT_ALLOWED_DRUGS];
-        saveData();
-      }
-    });
-
-    // アイコン初期描画
-    lucide.createIcons();
-  </script>
-</body>
-</html>
+// 3. 追加検索候補リスト（400件の候補から展開）
+const CANDIDATE_INPUTS = [
+  "クロルプロマジン（コントミン）","レボメプロマジン（レボトミン）","ペルフェナジン（ピーゼットシー）","フルフェナジン",
+  "プロペリシアジン（ニューレプチル）","ハロペリドール（セレネース）","ブロムペリドール（インプロメン）","ピモジド（オーラップ）",
+  "スルピリド（ドグマチール）","チアプリド（グラマリール）","ゾテピン（ロドピン）","カルピプラミン（デフェクトン）",
+  "クロカプラミン（クロフェクトン）","モサプラミン（クレミン）","ペロスピロン（ルーラン）","リスペリドン（リスパダール）",
+  "パリペリドン（インヴェガ）","オランザピン（ジプレキサ）","クエチアピン（セロクエル）","アリピプラゾール（エビリファイ）",
+  "ブロナンセリン（ロナセン）","ルラシドン（ラツーダ）","アセナピン（シクレスト）","クロザピン（クロザリル）",
+  "ブレクスピプラゾール（レキサルティ）","イミプラミン（トフラニール）","クロミプラミン（アナフラニール）","アミトリプチリン（トリプタノール）",
+  "ノルトリプチリン","アモキサピン（アモキサン）","ロフェプラミン（アンプリット）","マプロチリン（ルジオミール）",
+  "ミアンセリン（テトラミド）","トラゾドン（レスリン・デジレル）","ミルタザピン（リフレックス・レメロン）","フルボキサミン（ルボックス・デプロメール）",
+  "パロキセチン（パキシル）","セルトラリン（ジェイゾロフト）","エスシタロプラム（レクサプロ）","デュロキセチン（サインバルタ）",
+  "ベンラファキシン（イフェクサー）","ミルナシプラン（トレドミン）","ボルチオキセチン（トリンテリックス）","フルオキセチン",
+  "シタロプラム","レボミルナシプラン","デシプラミン","ドスレピン","トリミプラミン","ドキセピン",
+  "ジアゼパム（セルシン・ホリゾン）","ロラゼパム（ワイパックス）","アルプラゾラム（ソラナックス・コンスタン）","ブロノゼパム（レキソタン・セニラン）",
+  "エチゾラム（デパス）","クロチアゼパム（リーゼ）","クロキサゾラム（セパゾン）","オキサゾラム（セレナール）",
+  "クロルジアゼポキシド（コントール・バランス）","ロフラゼプ酸エチル（メイラックス）","フルトプラゼパム（レスタス）","メキサゾラム（メレックス）",
+  "メダゼパム","フルジアゼパム（エリスパン）","フルタゾラム（コレミナール）","トフィソパム（グランダキシン）",
+  "タンドスピロン（セディール）","クロラゼプ酸二カリウム（メンドン）","ヒドロキシジン（アタラックス）","ブスピロン",
+  "プレガバリン（リリカ）","ガバペンチン（ガバペン）","クロナゼパム（ランドセン・リボトリール）","クロバザム（マイスタン）",
+  "ブロノゼパム配合剤","トリアゾラム（ハルシオン）","ブロチゾラム（レンドルミン）","リルマザホン（リスミー）",
+  "ロルメタゼパム（エバミール・ロラメット）","エスタゾラム（ユーロジン）","ニトラゼパム（ベンザリン・ネルボン）","フルニトラゼパム（サイレース）",
+  "クアゼパム（ドラール）","フルラゼパム（ダルメート）","ゾルピデム（マイスリー）","ゾピクロン（アモバン）",
+  "エスゾピクロン（ルネスタ）","ラメルテオン（ロゼレム）","スボレキサント（ベルソムラ）","レンボレキサント（デエビゴ）",
+  "ダリドレキサント（クービビック）","フェノバルビタール（フェノバール）","アモバルビタール","セコバルビタール",
+  "トリクロホスナトリウム（トリクロリール）","抱水クロラール","ジフェンヒドラミン","プロメタジン",
+  "ニメタゼパム","メラトニン","炭酸リチウム（リーマス）","バルプロ酸ナトリウム（デパケン・バレリン）",
+  "カルバマゼピン（テグレトール）","ラモトリギン（ラミクタール）","トピラマート（トピナ）","レベチラセタム（イーケプラ）",
+  "ゾニサミド（エクセグラン）","フェニトイン（アレビアチン）","ホスフェニトイン（ホストイン）","プリミドン",
+  "エトスクシミド（ザロンチン）","ラコサミド（ビムパット）","ペランパネル（フィコンパ）","アセタゾラミド（ダイアモックス）",
+  "スチリペントール（ディアコミット）","フェルバメート","ルフィナミド（イノベロン）","ビガバトリン",
+  "オクスカルバゼピン","セノバメート","メチルフェニデート（コンサータ）","アトモキセチン（ストラテラ）",
+  "グアンファシン（インチュニブ）","リスデキサンフェタミン（ビバンセ）","メチルフェニデート（リタリン）","モダフィニル（モディオダール）",
+  "クロニジン（カタプレス）","メマンチン（メマリー）","ブプロピオン","デキストロアンフェタミン",
+  "アマンタジン（シンメトレル）","ピリドスチグミン（メスチノン）","バクロフェン（ギャバロン）","ドネペジル（アリセプト）",
+  "ガランタミン（レミニール）","リバスチグミン（イクセロン・リバスタッチ）","レカネマブ（レケンビ）","ドナネマブ（ケサンラ）",
+  "ピリベジル","ニセルゴリン（サアミオン）","イデベノン","シチコリン",
+  "ビペリデン（アキネトン）","
